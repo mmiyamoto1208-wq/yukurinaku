@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ja" class="no-js">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ゆくりなく｜偶然に繋がった十七人のことばを、一冊に。</title>
+<meta name="description" content="「ゆくりなく」は「偶然に」という意味の古語。この人の文章が読みたい、という一心だけで執筆のバトンをつないだ、二十代十七人の短編集。全128ページ・B6・限定250部。">
+<meta property="og:type" content="book">
+<meta property="og:title" content="ゆくりなく｜偶然に繋がった十七人のことばを、一冊に。">
+<meta property="og:description" content="「偶然に」という意味の古語をタイトルにした、二十代十七人の短編集。全128ページ・B6・限定250部。">
+<meta property="og:locale" content="ja_JP">
+<meta name="format-detection" content="telephone=no">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hina+Mincho&family=Zen+Old+Mincho:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400&display=swap" rel="stylesheet">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: { extend: {
+    colors: {
+      washi:'#F2F2F0',  /* 紙の地 */
+      sumi: '#272727',  /* 墨 */
+      usu:  '#6A6A6A',  /* 淡墨 */
+      ai:   '#3D5A6C',  /* 藍鼠。『ゆくりなく』の表紙から */
+      keisen:'#D8D6D0'  /* 罫 */
+    },
+    fontFamily: {
+      mincho:['"Zen Old Mincho"','serif'],
+      hina:  ['"Hina Mincho"','serif'],
+      kaku:  ['"Zen Kaku Gothic New"','sans-serif']
+    }
+  }}
+}
+</script>
+
+<style>
+/* ══════════════════════════════════════════════════════════
+   ゆくりなく ｜ 販促サイト
+
+   設計の芯
+   - 本は縦に組まれている。だからこのページも縦に組む。右から左へ読む
+   - 「ゆくりなく」＝偶然に、という古語。急がせない。余白で間をつくる
+   - 図版は置かない。この本は言葉でできているので、言葉だけで立てる
+   - 罫は髪の毛ほど。囲いは閉じきらず、開いたままにしておく
+
+   実装の約束
+   - GSAPとCSSアニメーションで transform を奪い合わない
+     （外側＝GSAPの視差／内側＝CSSの揺らぎ、と層を分ける）
+   - ボタンの塗りに currentColor を使わない
+     （ホバーで文字色を変えた瞬間、塗りと同色になって文字が消えるため）
+   ══════════════════════════════════════════════════════════ */
+
+:root{
+  --ease:cubic-bezier(.22,.75,.28,1);
+  --gut:clamp(20px,5vw,60px);
+  --sec:clamp(88px,12vw,190px);
+  --tate:min(66vh,600px);      /* 縦組み一段の高さ＝一行の長さ。
+                                  ここが低いほど列数が増え、横に広がる */
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:hidden;scroll-padding-top:72px}
+body{
+  margin:0;background:#F2F2F0;color:#272727;
+  font-family:"Zen Old Mincho",serif;font-weight:400;
+  line-height:2.05;letter-spacing:.08em;
+  overflow-x:hidden;-webkit-font-smoothing:antialiased;
+  word-break:auto-phrase;line-break:strict;
+}
+img,svg{display:block;max-width:100%}
+::selection{background:#3D5A6C;color:#F2F2F0}
+:focus-visible{outline:1px solid #3D5A6C;outline-offset:4px}
+a{color:inherit}
+
+.wrap{width:100%;max-width:1240px;margin-inline:auto;padding-inline:var(--gut)}
+.sec{position:relative;padding-block:var(--sec)}
+.skip{position:absolute;left:-9999px;top:0;z-index:99;background:#272727;color:#F2F2F0;padding:14px 22px}
+.skip:focus{left:0}
+
+/* ── 紙 ───────────────────────────────────────
+   刷り物の地合い。ベタ塗りの平坦さを、ごく薄い斑で消す */
+.washi::before{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  opacity:.5;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='4'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.34'/%3E%3C/svg%3E");
+}
+.washi > *{position:relative;z-index:1}
+
+/* ── 縦組み ───────────────────────────────────
+   height が「一行の長さ」にあたる。行が尽きると左へ次の行が立つ。
+   height:auto にすると Safari が親の高さに合わせて折り返すため、
+   必ず高さを与えるか max-content で固定する */
+.tate{
+  writing-mode:vertical-rl;
+  text-orientation:mixed;
+  height:var(--tate);
+  line-height:2.4;            /* 縦組みでは行と行の間隔 */
+  letter-spacing:.14em;
+}
+.tate--fix{height:max-content;white-space:nowrap}
+/* 縦中横。二桁の数字は寝かせず、横に並べて一文字ぶんに収める */
+.tcy{text-combine-upright:all;-webkit-text-combine:horizontal}
+
+/* ── 見出し ─────────────────────────────────── */
+.eyebrow{
+  font-family:"Zen Kaku Gothic New",sans-serif;
+  font-size:10px;letter-spacing:.42em;color:#3D5A6C;margin:0;
+}
+.h-tate{
+  color:#3D5A6C;
+  font-family:"Hina Mincho",serif;font-weight:400;
+  font-size:clamp(26px,3.4vw,42px);letter-spacing:.28em;line-height:1;
+  height:max-content;white-space:nowrap;
+  writing-mode:vertical-rl;text-orientation:upright;margin:0;
+}
+.h-yoko{
+  font-family:"Hina Mincho",serif;font-weight:400;
+  font-size:clamp(24px,3.2vw,38px);letter-spacing:.16em;line-height:1.7;margin:0;
+}
+.lead{font-size:clamp(14px,1.1vw,15.5px);line-height:2.5;letter-spacing:.1em;color:#3F3F3F}
+.usu{color:#6A6A6A}
+p{margin:0 0 1.6em}p:last-child{margin-bottom:0}
+
+/* ── 罫と枠 ───────────────────────────────────
+   閉じきらない囲い。上下だけ、あるいは三方だけ引く */
+.hair{border:1px solid #D8D6D0}
+.rule-v{width:1px;background:#D8D6D0}
+.rule-h{height:1px;background:#D8D6D0}
+
+/* ── 「読む」リンク（縦の罫＋点） ─────────────── */
+.readmore{
+  display:inline-flex;align-items:flex-start;gap:14px;text-decoration:none;
+  writing-mode:vertical-rl;letter-spacing:.2em;font-size:13px;
+}
+.readmore i{
+  display:block;width:1px;height:88px;background:#3D5A6C;
+  transform-origin:top;transition:transform .6s var(--ease);
+}
+.readmore:hover i{transform:scaleY(1.28)}
+.readmore span{display:block}
+.readmore em{
+  font-style:normal;display:block;width:4px;height:4px;border-radius:50%;
+  background:#3D5A6C;margin-top:10px;transition:transform .5s var(--ease);
+}
+.readmore:hover em{transform:scale(1.9)}
+
+/* ── ボタン ─────────────────────────────────
+   塗りは --fill に固定する。currentColor だと
+   ホバーで文字色を変えた瞬間に塗りも同色になり、文字が消える */
+.btn{
+  --fill:#272727; --on:#F2F2F0;
+  position:relative;overflow:hidden;isolation:isolate;
+  display:inline-flex;align-items:center;justify-content:center;gap:.8em;
+  padding:15px 32px;text-decoration:none;cursor:pointer;
+  font-family:"Zen Kaku Gothic New",sans-serif;
+  font-size:11.5px;letter-spacing:.22em;line-height:1;
+  border:1px solid #272727;background:transparent;color:#272727;
+  transition:color .5s var(--ease);
+}
+.btn::before{
+  content:"";position:absolute;inset:0;z-index:-1;background:var(--fill);
+  transform:translateY(101%);transition:transform .55s var(--ease);
+}
+.btn:hover::before,.btn:focus-visible::before{transform:translateY(0)}
+.btn:hover,.btn:focus-visible{color:var(--on)}
+.btn--ai{border-color:#3D5A6C;color:#3D5A6C;--fill:#3D5A6C;--on:#F2F2F0}
+
+/* ── ヘッダー ─────────────────────────────── */
+.hd{
+  position:fixed;top:0;left:0;right:0;z-index:40;
+  transition:background-color .5s var(--ease),border-color .5s var(--ease);
+  border-bottom:1px solid transparent;
+}
+.hd--solid{
+  background:rgba(242,242,240,.86);
+  -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+  border-bottom-color:#D8D6D0;
+}
+.hd__in{
+  max-width:1240px;margin-inline:auto;padding-inline:var(--gut);
+  height:60px;display:flex;align-items:center;justify-content:space-between;gap:18px;
+}
+@media (min-width:768px){ .hd__in{height:72px} }
+.hd__mark{font-family:"Hina Mincho",serif;font-size:17px;letter-spacing:.3em;text-decoration:none;color:#3D5A6C}
+.hd__nav{display:none;gap:clamp(18px,2.4vw,34px)}
+@media (min-width:900px){ .hd__nav{display:flex} }
+.hd__nav a{
+  font-family:"Zen Kaku Gothic New",sans-serif;font-size:11px;letter-spacing:.2em;
+  text-decoration:none;color:#4A4A4A;transition:color .35s var(--ease);
+}
+.hd__nav a:hover{color:#272727}
+
+/* ── ヒーロー ─────────────────────────────── */
+.hero{
+  position:relative;min-height:100vh;min-height:100svh;overflow:hidden;
+  display:flex;align-items:center;
+}
+.hero__in{
+  position:relative;z-index:2;width:100%;
+  padding-block:100px 84px;
+  display:flex;flex-direction:row-reverse;align-items:center;
+  justify-content:center;gap:clamp(24px,6vw,90px);flex-wrap:wrap;
+}
+/* 縦組みの題字は「文字数 × 字送り」がそのまま高さになる。
+   五文字 × 1.3em ＝ 6.5em ぶん。画面の高さから余白を引いた中に
+   必ず収まるよう、vh を上限にして決める（vw だけだと縦長画面で溢れる） */
+.hero__ttl{
+  color:#3D5A6C;
+  font-family:"Hina Mincho",serif;font-weight:400;
+  writing-mode:vertical-rl;text-orientation:upright;
+  font-size:clamp(42px,min(8.5vw,10.5vh),104px);
+  letter-spacing:.3em;line-height:1;height:max-content;white-space:nowrap;margin:0;
+}
+.hero__sub{
+  writing-mode:vertical-rl;text-orientation:mixed;
+  height:max-content;white-space:nowrap;
+  font-size:clamp(12px,1.05vw,14px);letter-spacing:.4em;color:#526C7E;margin:0;
+}
+.hero__poem{
+  writing-mode:vertical-rl;text-orientation:mixed;
+  height:max-content;
+  font-size:clamp(13px,1.15vw,15px);letter-spacing:.2em;line-height:2.3;
+  color:#4A4A4A;margin:0;
+}
+.hero__cue{
+  position:absolute;left:50%;bottom:22px;transform:translateX(-50%);z-index:2;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+}
+.hero__cue span{font-family:"Zen Kaku Gothic New",sans-serif;font-size:9px;letter-spacing:.34em;color:#8A8A8A}
+.hero__cue i{display:block;width:1px;height:52px;background:linear-gradient(to bottom,#9A9A9A,transparent)}
+
+/* 地に沈む、大きな「偶」の字。図版の代わりの、ただ一つの影 */
+.hero__ghost{
+  position:absolute;z-index:0;right:-2vw;top:50%;
+  font-family:"Hina Mincho",serif;font-size:min(74vh,60vw);line-height:1;
+  color:#3D5A6C;opacity:.055;pointer-events:none;user-select:none;
+  writing-mode:vertical-rl;text-orientation:upright;
+}
+.hero__ghost i{display:block;animation:sway 22s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:translateY(-50%) scale(1)}50%{transform:translateY(-52%) scale(1.035)}}
+
+/* ── 奥付 ─────────────────────────────────────
+   写真を置かないぶん、「これは本である」ことは
+   書誌のかたちそのもので伝える。ヒーローの直後に一本だけ渡す */
+.okuduke{
+  border-block:1px solid #D8D6D0;background:#EFEFEC;
+}
+.okuduke__in{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:center;
+  gap:0;padding-block:clamp(20px,2.6vw,30px);
+}
+.okuduke__in > *{
+  padding-inline:clamp(13px,1.8vw,26px);
+  border-left:1px solid #D8D6D0;
+  font-size:clamp(11.5px,1vw,13px);letter-spacing:.2em;white-space:nowrap;
+}
+.okuduke__in > *:first-child{border-left:0}
+.okuduke b{font-weight:400;font-family:"Hina Mincho",serif;font-size:clamp(14px,1.3vw,17px);color:#3D5A6C}
+.okuduke small{color:#6A6A6A;font-size:inherit}
+@media (max-width:640px){
+  .okuduke__in{gap:9px 0}
+  .okuduke__in > *{border-left:0;padding-inline:11px;font-size:11.5px}
+}
+
+/* ── 枠のなかの縦組み（白骨物語のような一枚） ── */
+.panel{
+  position:relative;background:#F7F7F5;border:1px solid #CFD5D8;
+  padding:clamp(28px,4vw,56px) clamp(22px,3.4vw,48px);
+}
+.panel__body{display:flex;flex-direction:row-reverse;gap:clamp(18px,2.6vw,40px);justify-content:flex-start}
+
+/* ── 三つの約束 ───────────────────────────── */
+.rules{display:flex;flex-direction:row-reverse;justify-content:center;gap:clamp(26px,5vw,84px);flex-wrap:wrap}
+.rule-card{display:flex;flex-direction:row-reverse;gap:16px;align-items:flex-start}
+.rule-card__no{
+  font-family:"Zen Kaku Gothic New",sans-serif;font-size:10px;letter-spacing:.3em;
+  color:#3D5A6C;writing-mode:vertical-rl;height:max-content;white-space:nowrap;
+}
+.rule-card__t{
+  font-family:"Hina Mincho",serif;font-size:clamp(19px,2vw,25px);letter-spacing:.22em;
+  writing-mode:vertical-rl;text-orientation:upright;height:max-content;white-space:nowrap;margin:0;
+}
+.rule-card__d{
+  writing-mode:vertical-rl;height:min(30vh,250px);
+  font-size:13px;line-height:2.3;letter-spacing:.12em;color:#5A5A5A;margin:0;
+}
+
+/* ── 十七人 ───────────────────────────────── */
+.names{
+  display:flex;flex-direction:row-reverse;flex-wrap:wrap;
+  justify-content:center;gap:clamp(14px,2vw,30px);
+}
+.names a,.names span{
+  writing-mode:vertical-rl;text-orientation:mixed;height:max-content;white-space:nowrap;
+  font-size:clamp(14px,1.35vw,17px);letter-spacing:.24em;text-decoration:none;
+  padding:2px 0;border-right:1px solid transparent;
+  transition:color .4s var(--ease),border-color .4s var(--ease);
+}
+.names a:hover{color:#3D5A6C;border-right-color:#3D5A6C}
+
+/* ── 取扱店 ───────────────────────────────────
+   罫で区切った素の一覧。店名を主、土地を従に置く */
+.shops{
+  display:flex;flex-direction:column;max-width:34em;margin-inline:auto;
+  border-top:1px solid #D8D6D0;text-align:left;
+}
+.shops a,.shops span{
+  display:flex;align-items:baseline;justify-content:space-between;gap:1.4em;
+  padding:17px 2px;border-bottom:1px solid #D8D6D0;text-decoration:none;
+  transition:background-color .4s var(--ease),padding-inline .4s var(--ease);
+}
+.shops a:hover{background:#EAEAE6;padding-inline:10px 2px}
+.shops b{font-weight:400;font-size:clamp(14px,1.3vw,16px);letter-spacing:.1em}
+.shops i{
+  font-style:normal;flex:0 0 auto;
+  font-family:"Zen Kaku Gothic New",sans-serif;font-size:10.5px;letter-spacing:.24em;color:#6A6A6A;
+}
+.shops a b::after{content:" ↗";font-size:.8em;color:#3D5A6C}
+
+/* ── 仕様 ─────────────────────────────────── */
+.spec{display:flex;flex-direction:row-reverse;gap:0;justify-content:center;flex-wrap:wrap}
+.spec div{
+  display:flex;flex-direction:row-reverse;gap:12px;
+  padding:0 clamp(11px,1.5vw,20px);border-right:1px solid #D8D6D0;
+}
+.spec div:first-child{border-right:0}
+.spec dt{
+  font-family:"Zen Kaku Gothic New",sans-serif;font-size:10px;letter-spacing:.26em;color:#8A8A8A;
+  writing-mode:vertical-rl;height:max-content;white-space:nowrap;margin:0;
+}
+.spec dd{
+  writing-mode:vertical-rl;text-orientation:mixed;height:max-content;white-space:nowrap;
+  font-size:clamp(14px,1.3vw,16px);letter-spacing:.16em;margin:0;
+}
+
+/* ── 引用 ─────────────────────────────────── */
+.quote{writing-mode:vertical-rl;height:var(--tate);line-height:2.5;letter-spacing:.16em;
+  font-size:clamp(14px,1.2vw,16px);margin:0}
+.quote cite{
+  display:block;font-style:normal;margin-right:2.6em;
+  font-family:"Zen Kaku Gothic New",sans-serif;font-size:10.5px;letter-spacing:.24em;color:#8A8A8A;
+}
+
+/* ── 現れかた ─────────────────────────────── */
+.rv{opacity:0;transform:translate3d(0,22px,0)}
+.rv.in{opacity:1;transform:none;transition:opacity 1.2s var(--ease),transform 1.3s var(--ease)}
+.no-js .rv{opacity:1;transform:none}
+
+/* ── 文節での折り返し（Safari 含む） ──────────
+   word-break:auto-phrase は Chrome 系のみ。
+   JSが文節の切れ目に <wbr> を入れ、keep-all でそこだけ折る */
+.jp{word-break:keep-all;overflow-wrap:break-word}
+
+/* ── 動きを控える設定 ─────────────────────── */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.01ms !important;animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;scroll-behavior:auto !important;
+  }
+  .rv{opacity:1 !important;transform:none !important}
+}
+
+/* ── 画面が狭いとき ───────────────────────────
+   長い本文の縦組みは、狭い画面だと横に溢れて読めない。
+   題字と短い一行だけ縦のまま残し、本文は横組みに戻す */
+@media (max-width:899px){
+  :root{--tate:min(52vh,420px)}
+  /* ヒーローだけは縦組みのまま残す。題字を上、一行を下に積む */
+  .hero__in{flex-direction:column;justify-content:center;gap:clamp(22px,5vw,38px)}
+  .hero__poem{font-size:13px;letter-spacing:.16em}
+  .panel__body{flex-direction:column;align-items:stretch}
+  .quote,.rule-card__d{
+    writing-mode:horizontal-tb;height:auto;line-height:2.2;letter-spacing:.06em;
+  }
+  .quote cite{margin:1.6em 0 0}
+  .rule-card{flex-direction:column;gap:12px}
+  .rule-card__no,.rule-card__t{writing-mode:horizontal-tb;text-orientation:mixed}
+  .rule-card__t{letter-spacing:.12em}
+  .rules{flex-direction:column;align-items:stretch;gap:0}
+  .rules > *{padding-block:26px;border-top:1px solid #D8D6D0}
+  .rules > *:first-child{border-top:0}
+  .spec div{border-right:0;border-top:1px solid #D8D6D0;padding:14px 0;
+    flex-direction:row;justify-content:space-between;width:100%}
+  .spec div:first-child{border-top:0}
+  .spec{flex-direction:column;max-width:24em;margin-inline:auto}
+  .spec dt,.spec dd{writing-mode:horizontal-tb;height:auto}
+  .names a,.names span{writing-mode:horizontal-tb;height:auto;border-right:0;
+    border-bottom:1px solid transparent}
+  .names a:hover{border-right:0;border-bottom-color:#3D5A6C}
+  .names{flex-direction:row;gap:10px 22px}
+  .h-tate{writing-mode:horizontal-tb;text-orientation:mixed;letter-spacing:.14em}
+}
+@media (max-width:380px){
+  :root{--gut:17px}
+  .btn{padding:13px 22px;letter-spacing:.16em}
+}
+</style>
+</head>
+
+<body class="no-js">
+<a class="skip" href="#main">本文へスキップ</a>
+
+<!-- ══════════════ ヘッダー ══════════════ -->
+<header class="hd" id="hd">
+  <div class="hd__in">
+    <a class="hd__mark" href="#top">ゆくりなく</a>
+    <nav class="hd__nav" aria-label="メニュー">
+      <a href="#story">はじまり</a>
+      <a href="#rules">三つの約束</a>
+      <a href="#writers">十七人</a>
+      <a href="#book">本のこと</a>
+      <a href="#buy">お迎えする</a>
+    </nav>
+    <a class="btn" href="#buy" style="padding:10px 20px;font-size:10.5px">お迎えする</a>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ══════════════ ヒーロー ══════════════ -->
+<section id="top" class="hero washi">
+  <div class="hero__ghost" aria-hidden="true"><i>偶</i></div>
+
+  <div class="hero__in wrap">
+    <!-- 右：題字 -->
+    <div class="flex flex-row-reverse items-center gap-[clamp(14px,2vw,30px)]">
+      <h1 class="hero__ttl rv">ゆくりなく</h1>
+      <p class="hero__sub rv">［偶然に、という意味の古語］</p>
+    </div>
+
+    <!-- 左：一行 -->
+    <div class="flex flex-row-reverse items-start gap-[clamp(16px,2.4vw,36px)]">
+      <p class="hero__poem rv">この人の文章が読みたい。<br>その一心だけで、三年。</p>
+      <p class="hero__poem rv usu" style="font-size:clamp(11px,.95vw,13px);letter-spacing:.3em">
+        二十代十七人による短編集<br>二〇二五年六月発行</p>
+    </div>
+  </div>
+
+  <div class="hero__cue" aria-hidden="true"><span>SCROLL</span><i></i></div>
+</section>
+
+<!-- ══════════════ 奥付 ══════════════ -->
+<section class="okuduke rv" aria-label="書誌">
+  <div class="wrap okuduke__in">
+    <span><b>ゆくりなく</b></span>
+    <span>短編集</span>
+    <span>B6判・一二八頁</span>
+    <span>二〇二五年六月 発行</span>
+    <span>限定二五〇部</span>
+    <span>一、一〇〇円<small>＋税</small></span>
+  </div>
+</section>
+
+<!-- ══════════════ はじまり ══════════════ -->
+<section id="story" class="sec washi" aria-labelledby="st-t">
+  <div class="wrap">
+    <div class="flex flex-row-reverse items-start gap-[clamp(22px,4vw,64px)] justify-center">
+
+      <!-- 見出し -->
+      <div class="flex flex-row-reverse items-start gap-[clamp(12px,1.6vw,22px)] shrink-0">
+        <h2 class="h-tate rv" id="st-t">ゆくりなく物語</h2>
+        <p class="eyebrow rv" style="writing-mode:vertical-rl;height:max-content;white-space:nowrap">THE BEGINNING</p>
+      </div>
+
+      <!-- 枠のなかの本文 -->
+      <div class="panel rv" style="max-width:100%">
+        <div class="panel__body">
+          <p class="quote">
+            二〇二二年八月、本棚の前で「僕、この本が作りたい」と、彼は少し控えめに呟いた。<br>
+            手にしていたのは椋本湧也さん作「<span class="tcy">26</span>歳計画」という本だった。<br>
+            それは、「<span class="tcy">26</span>歳」をタイトルにした<span class="tcy">48</span>名の文章が一冊にまとまっているというものであるが、この企画はさらに「あなたがいちばん魅力的だと思う<span class="tcy">26</span>歳の知り合いにこの企画をつないでください」とつづく。<br>
+            確かにこの企画を少しアレンジして自分たちでやってみるのはおもしろそうだった。<br>
+            「どんなコンセプトにするか」「タイトルは何にするか」と、ふたりで話し合い、妄想をするだけでワクワクしたことを覚えている。<br>
+            それから何度も打合せを重ね、企画内容とコンセプトが決まった。
+            <cite>「はじめがき」より</cite>
+          </p>
+
+          <div class="shrink-0 self-start">
+            <a class="readmore" href="#rules"><i></i><span>三つの約束を読む</span><em></em></a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 三つの約束 ══════════════ -->
+<section id="rules" class="sec washi" aria-labelledby="ru-t" style="background:#EFEFEC">
+  <div class="wrap">
+    <div class="text-center mb-[clamp(40px,6vw,84px)]">
+      <p class="eyebrow rv">THREE RULES</p>
+      <h2 class="h-yoko rv mt-4" id="ru-t">決めたのは、三つだけ。</h2>
+    </div>
+
+    <div class="rules">
+      <div class="rule-card rv">
+        <p class="rule-card__no">壱</p>
+        <h3 class="rule-card__t">執筆のバトンを繋ぐ</h3>
+        <p class="rule-card__d jp">「この人の文章が読みたい！」と思う人にこの企画をアツく語り、執筆のバトンを繋いでいくこと。</p>
+      </div>
+      <div class="rule-card rv">
+        <p class="rule-card__no">弐</p>
+        <h3 class="rule-card__t">主題も長さも問わない</h3>
+        <p class="rule-card__d jp">執筆文章のテーマ、文字数は自由。何を書いてもいい。どれだけ書いてもいい。</p>
+      </div>
+      <div class="rule-card rv">
+        <p class="rule-card__no">参</p>
+        <h3 class="rule-card__t">書き手は二十代</h3>
+        <p class="rule-card__d jp">バトンを繋ぐ執筆者は二十代であること。同じ時代を生きている人の、いまの言葉を。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 十七人 ══════════════ -->
+<section id="writers" class="sec washi" aria-labelledby="wr-t">
+  <div class="wrap">
+    <div class="text-center mb-[clamp(34px,5vw,70px)]">
+      <p class="eyebrow rv">SEVENTEEN WRITERS</p>
+      <h2 class="h-yoko rv mt-4" id="wr-t">全国に散らばる、十七人。</h2>
+      <p class="lead rv usu mt-6 mx-auto jp" style="max-width:30em">
+        バトンが繋がることで偶然に知り合った人たち。そのほとんどと、私たちはいまだ会ったことがありません。</p>
+    </div>
+
+    <div class="names rv" id="names"></div>
+    <p class="eyebrow rv text-center mt-10">五十音順</p>
+  </div>
+</section>
+
+<!-- ══════════════ 偶然と必然 ══════════════ -->
+<section class="sec washi" aria-labelledby="qt-t" style="background:#EFEFEC">
+  <div class="wrap">
+    <div class="flex flex-row-reverse items-start gap-[clamp(22px,4vw,64px)] justify-center">
+      <div class="flex flex-row-reverse items-start gap-[clamp(12px,1.6vw,22px)] shrink-0">
+        <h2 class="h-tate rv" id="qt-t">偶然と必然</h2>
+        <p class="eyebrow rv" style="writing-mode:vertical-rl;height:max-content;white-space:nowrap">A NOTE</p>
+      </div>
+      <p class="quote rv">
+        この本が今ここにあること、その過程で皆と繋がったことは、どこまでいっても偶然でしかないはずなのに、どういうわけかそこにストーリーを載せて必然だと思いたい自分がいる。<br>
+        偶然と必然は対義語であって、同じ意味なのかもしれない。
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ 本のこと ══════════════ -->
+<section id="book" class="sec washi" aria-labelledby="bk-t">
+  <div class="wrap">
+    <div class="text-center mb-[clamp(36px,5vw,72px)]">
+      <p class="eyebrow rv">THE BOOK</p>
+      <h2 class="h-yoko rv mt-4" id="bk-t">本のこと。</h2>
+    </div>
+
+    <dl class="spec rv">
+      <div><dt>書名</dt><dd>ゆくりなく</dd></div>
+      <div><dt>体裁</dt><dd>B6判・全一二八頁</dd></div>
+      <div><dt>発行</dt><dd>二〇二五年六月</dd></div>
+      <div><dt>部数</dt><dd>限定二五〇部</dd></div>
+      <div><dt>表紙</dt><dd>五〇種</dd></div>
+      <div><dt>価格</dt><dd>一、一〇〇円＋税</dd></div>
+    </dl>
+
+    <div class="rule-h my-[clamp(34px,5vw,64px)] mx-auto" style="max-width:640px"></div>
+
+    <dl class="spec rv">
+      <div><dt>作者</dt><dd>江澤礼・宮本雅就</dd></div>
+      <div><dt>執筆</dt><dd>十七名</dd></div>
+      <div><dt>印刷</dt><dd>藤原印刷株式会社</dd></div>
+      <div><dt>リボン</dt><dd>井上リボン工業株式会社</dd></div>
+    </dl>
+
+    <p class="lead usu text-center mt-[clamp(30px,4vw,52px)] jp mx-auto" style="max-width:32em">
+      表紙は五〇種。どの一冊が届くかは、選べません。</p>
+  </div>
+</section>
+
+<!-- ══════════════ ラヂヲ ══════════════ -->
+<section class="sec washi" aria-labelledby="rd-t" style="background:#EFEFEC">
+  <div class="wrap text-center">
+    <p class="eyebrow rv">RADIO</p>
+    <h2 class="h-yoko rv mt-4" id="rd-t">本の外側にある、話。</h2>
+    <p class="lead rv usu mt-7 mx-auto jp" style="max-width:32em">
+      『ゆくりなく』に寄稿してくれたメンバーをゲストに迎え、本の中だけでは語りきれなかったことを、対話を通して深掘りしていく番組です。</p>
+    <p class="rv mt-10">
+      <a class="btn" href="https://open.spotify.com/show/033ihpHvIkfWqIKudoytO4" target="_blank" rel="noopener">ゆくりなくラヂヲを聴く ↗</a>
+    </p>
+  </div>
+</section>
+
+<!-- ══════════════ お迎えする ══════════════ -->
+<section id="buy" class="sec washi" aria-labelledby="by-t">
+  <div class="wrap text-center">
+    <p class="eyebrow rv">HOW TO GET</p>
+    <h2 class="h-yoko rv mt-4" id="by-t">たったの二五〇部だから、<br>直接お送りしたい。</h2>
+    <p class="lead rv usu mt-7 mx-auto jp" style="max-width:33em">
+      一般の書店には並びません。私たちふたりのどちらかにご連絡いただくか、下記のお取り扱い店舗でお求めいただけます。</p>
+
+    <div class="rv mt-[clamp(38px,5vw,64px)] flex flex-wrap justify-center gap-[clamp(14px,2vw,26px)]">
+      <a class="btn btn--ai" href="https://www.instagram.com/mm55world/" target="_blank" rel="noopener">宮本雅就 ＠mm55world ↗</a>
+      <a class="btn btn--ai" href="https://www.instagram.com/trinke_kaffee/" target="_blank" rel="noopener">江澤礼 ＠trinke_kaffee ↗</a>
+    </div>
+    <p class="eyebrow rv mt-8">＊在庫状況は各アカウントへお問い合わせください</p>
+
+    <div class="rv mt-[clamp(52px,7vw,92px)]">
+      <p class="eyebrow">STOCKISTS</p>
+      <h3 class="h-yoko mt-4 mb-[clamp(24px,3.4vw,44px)]" style="font-size:clamp(19px,2.2vw,26px)">お取り扱い店舗</h3>
+
+      <div class="shops">
+        <a href="https://www.hikarie.jp/shop/detail/?scd=000107" target="_blank" rel="noopener">
+          <b>渋谷〇〇書店</b><i>渋谷</i></a>
+        <a href="https://domatomadobooks.square.site/" target="_blank" rel="noopener">
+          <b>ドマトマド</b><i>郡上</i></a>
+        <a href="https://station.shirakucho.net/" target="_blank" rel="noopener">
+          <b>コワーキングスペース向洋 SHIRAKUCHO STATION</b><i>広島</i></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ══════════════ フッター ══════════════ -->
+<footer class="washi" style="border-top:1px solid #D8D6D0">
+  <div class="wrap py-[clamp(40px,6vw,72px)]">
+    <div class="flex flex-wrap items-start justify-between gap-8">
+      <div>
+        <p class="hd__mark" style="display:block;margin:0 0 12px">ゆくりなく</p>
+        <p class="lead usu jp" style="margin:0">偶然に繋がった十七人のことばを、一冊に。</p>
+      </div>
+      <nav class="flex flex-wrap gap-x-7 gap-y-3" aria-label="フッターメニュー">
+        <a href="#story" class="eyebrow" style="text-decoration:none">はじまり</a>
+        <a href="#rules" class="eyebrow" style="text-decoration:none">三つの約束</a>
+        <a href="#writers" class="eyebrow" style="text-decoration:none">十七人</a>
+        <a href="#book" class="eyebrow" style="text-decoration:none">本のこと</a>
+        <a href="https://open.spotify.com/show/033ihpHvIkfWqIKudoytO4" target="_blank" rel="noopener" class="eyebrow" style="text-decoration:none">ラヂヲ ↗</a>
+      </nav>
+    </div>
+    <p class="eyebrow mt-10" style="letter-spacing:.2em">© ゆくりなく ／ 江澤礼・宮本雅就</p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(function () {
+  'use strict';
+  document.documentElement.classList.remove('no-js');
+  document.body.classList.remove('no-js');
+
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var hasGsap = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
+
+  /* ── 十七人 ─────────────────────────────────
+     Instagram の完成告知に記載された十七名（五十音順）。
+     アカウントが公表されている方だけリンクにする */
+  var WRITERS = [
+    ['alisa','__maenoarisa'], ['Ayuno Suzuki','ayuuu_666'], ['kudo suzu','osu.__.zu'],
+    ['manamin','manaming__7'], ['miyuu','mi_yuuu___'], ['REI','trinke_kaffee'],
+    ['東 真優',''], ['大山 亮','ryoyama_0909'], ['きょうこ',''],
+    ['佐藤 歩','kurukuruwalker'], ['菅原 政行','plageoj'], ['瀬川 航岸','segawa.bokumin'],
+    ['原澤 大樹','harahiro0430'], ['ぱた',''], ['保科',''],
+    ['宮本 雅就','mm55world'], ['吉田 春香','yaco019']
+  ];
+  var host = document.getElementById('names');
+  if (host) {
+    host.innerHTML = WRITERS.map(function (w) {
+      return w[1]
+        ? '<a href="https://www.instagram.com/' + w[1] + '/" target="_blank" rel="noopener">' + w[0] + '</a>'
+        : '<span>' + w[0] + '</span>';
+    }).join('');
+  }
+
+  /* ══════════════════════════════════════════════
+     日本語を文節で折り返す
+
+     word-break:auto-phrase は Chrome 系にしか無い。
+     文節の切れ目に <wbr>（改行してよい印）を入れ、
+     CSS側の .jp（word-break:keep-all）で
+     「<wbr> のある所だけで改行する」状態にする。
+     ＝ Safari でも Chrome と同じ位置で改行される。
+     ══════════════════════════════════════════════ */
+  var reK = /[一-鿿㐀-䶿々〇]/, reH = /[ぁ-ゟ]/, reC = /[゠-ヿㇰ-ㇿｦ-ﾟ]/, reN = /[A-Za-z0-9０-９]/;
+  var NO_START = '、。，．・ー」』）】〉》！？：；…〜%％’”ぁぃぅぇぉっゃゅょゎヵヶ々ゝゞヽヾ';
+  var NO_END = '「『（【〈《“‘', CLOSE = '、。！？」』）】〉》…', OPEN = '「『（【〈《';
+  var PREFIX = 'おごみ';
+  // 語の後半に来やすい漢字。行頭にすると複合語や補助動詞が割れる
+  var SUFFIX = '立上下出入込合直過続始終切取付手屋物方者様達目中先側用品家人日';
+
+  function phrases(t) {
+    var out = [], last = 0;
+    for (var i = 1; i < t.length; i++) {
+      var p = t.charAt(i - 1), c = t.charAt(i), ok = false;
+      if (NO_START.indexOf(c) >= 0 || NO_END.indexOf(p) >= 0) continue;
+      if (CLOSE.indexOf(p) >= 0) ok = true;
+      else if (OPEN.indexOf(c) >= 0) ok = true;
+      else if (reH.test(p) && (reK.test(c) || reC.test(c) || reN.test(c))) {
+        if (PREFIX.indexOf(p) >= 0 && reK.test(c)) ok = false;
+        else if (SUFFIX.indexOf(c) >= 0) ok = false;
+        else ok = true;
+      }
+      if (ok) { out.push(t.slice(last, i)); last = i; }
+    }
+    out.push(t.slice(last));
+    return out;
+  }
+
+  // 縦組みの本文と、名前・仕様は元の組みのままにしておく
+  [].slice.call(document.querySelectorAll('main p, main h2, main h3, footer p'))
+    .forEach(function (el) {
+      if (el.closest('.names, .spec, .hero__ttl, .hero__sub')) return;
+      var wk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false), ns = [], n;
+      while ((n = wk.nextNode())) { if (/[ぁ-ヿ一-鿿]/.test(n.nodeValue)) ns.push(n); }
+      if (!ns.length) return;
+      var hit = false;
+      ns.forEach(function (t) {
+        var parts = phrases(t.nodeValue);
+        if (parts.length < 2) return;
+        var frag = document.createDocumentFragment();
+        parts.forEach(function (p, i) {
+          if (i) frag.appendChild(document.createElement('wbr'));
+          frag.appendChild(document.createTextNode(p));
+        });
+        t.parentNode.replaceChild(frag, t);
+        hit = true;
+      });
+      if (hit) el.classList.add('jp');
+    });
+
+  /* ── ヘッダー ─────────────────────────────── */
+  var hd = document.getElementById('hd');
+  function paint() { hd.classList.toggle('hd--solid', window.scrollY > 40); }
+  paint();
+  window.addEventListener('scroll', paint, { passive: true });
+
+  /* JSやGSAPが無い場合も、静かなページとして成立させる */
+  if (reduce || !hasGsap) {
+    [].slice.call(document.querySelectorAll('.rv')).forEach(function (e) { e.classList.add('in'); });
+    return;
+  }
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ── 現れかた。急がせず、間をおいて ───────────
+     ヒーローだけはスクロールを待たず、読み込みと同時に立ち上げる */
+  [].slice.call(document.querySelectorAll('section, footer')).forEach(function (sec) {
+    var items = sec.querySelectorAll('.rv');
+    if (!items.length) return;
+
+    if (sec.classList.contains('hero')) {
+      gsap.to(items, { opacity: 1, y: 0, duration: 1.5, ease: 'power3.out', stagger: 0.16, delay: 0.15 });
+      return;
+    }
+    gsap.to(items, {
+      opacity: 1, y: 0, duration: 1.35, ease: 'power3.out', stagger: 0.14,
+      scrollTrigger: { trigger: sec, start: 'top 84%', once: true }
+    });
+  });
+
+  /* ── 地に沈む「偶」を、スクロールより遅らせる ──
+     動かすのは外側だけ。内側の i は CSS が揺らしているので
+     transform を取り合わない */
+  var ghost = document.querySelector('.hero__ghost');
+  if (ghost) {
+    gsap.to(ghost, {
+      yPercent: 14, ease: 'none',
+      scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1.2 }
+    });
+  }
+
+  /* ── ヒーロー全体を、静かに送り出す ───────────
+     題字そのものではなく「親」を動かす。
+     子（.rv）の opacity は登場アニメーションが握っているので、
+     同じ要素に二つの指定を重ねると奪い合って消える */
+  var heroIn = document.querySelector('.hero__in');
+  if (heroIn) {
+    gsap.to(heroIn, {
+      yPercent: -7, opacity: .16, ease: 'none',
+      scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1 }
+    });
+  }
+})();
+</script>
+</body>
+</html>
