@@ -15,25 +15,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Hina+Mincho&family=Zen+Old+Mincho:wght@400;500&family=Zen+Kaku+Gothic+New:wght@400&display=swap" rel="stylesheet">
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-tailwind.config = {
-  theme: { extend: {
-    colors: {
-      washi:'#F2F2F0',  /* 紙の地 */
-      sumi: '#272727',  /* 墨 */
-      usu:  '#6A6A6A',  /* 淡墨 */
-      ai:   '#3D5A6C',  /* 藍鼠。『ゆくりなく』の表紙から */
-      keisen:'#D8D6D0'  /* 罫 */
-    },
-    fontFamily: {
-      mincho:['"Zen Old Mincho"','serif'],
-      hina:  ['"Hina Mincho"','serif'],
-      kaku:  ['"Zen Kaku Gothic New"','sans-serif']
-    }
-  }}
-}
-</script>
 
 <style>
 /* ══════════════════════════════════════════════════════════
@@ -64,7 +45,9 @@ html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;overflow-x:hidden;scro
 body{
   margin:0;background:#F2F2F0;color:#272727;
   font-family:"Zen Old Mincho",serif;font-weight:400;
-  line-height:2.05;letter-spacing:.08em;
+  /* 行間は 1.5。縦組み（.tate）や本文（.lead）は各自で持つので、
+     ここは仕様や店名など一行ものの受け皿 */
+  line-height:1.5;letter-spacing:.08em;
   overflow-x:hidden;-webkit-font-smoothing:antialiased;
   word-break:auto-phrase;line-break:strict;
 }
@@ -120,7 +103,8 @@ a{color:inherit}
 }
 .lead{font-size:clamp(14px,1.1vw,15.5px);line-height:2.5;letter-spacing:.1em;color:#3F3F3F}
 .usu{color:#6A6A6A}
-p{margin:0 0 1.6em}p:last-child{margin-bottom:0}
+/* 段落の余白は各コンポーネントが持つ。ここでは付けない */
+p{margin:0}
 
 /* ── 罫と枠 ───────────────────────────────────
    閉じきらない囲い。上下だけ、あるいは三方だけ引く */
@@ -263,6 +247,19 @@ p{margin:0 0 1.6em}p:last-child{margin-bottom:0}
   .okuduke__in > *{border-left:0;padding-inline:11px;font-size:11.5px}
 }
 
+/* ── 縦の見出し ＋ 本文、の二段組み ─────────────
+   広い画面では右に見出しを立て、左に本文を置く。
+   狭い画面では横に並べきれないので、上下に積み替える（下の @media） */
+.colset{
+  display:flex;flex-direction:row-reverse;align-items:flex-start;
+  justify-content:center;gap:clamp(22px,4vw,64px);
+}
+.colset__head{
+  display:flex;flex-direction:row-reverse;align-items:flex-start;
+  gap:clamp(12px,1.6vw,22px);flex-shrink:0;
+}
+.eyebrow--tate{writing-mode:vertical-rl;height:max-content;white-space:nowrap}
+
 /* ── 枠のなかの縦組み（白骨物語のような一枚） ── */
 .panel{
   position:relative;background:#F7F7F5;border:1px solid #CFD5D8;
@@ -390,11 +387,79 @@ p{margin:0 0 1.6em}p:last-child{margin-bottom:0}
   .names a:hover{border-right:0;border-bottom-color:#3D5A6C}
   .names{flex-direction:row;gap:10px 22px}
   .h-tate{writing-mode:horizontal-tb;text-orientation:mixed;letter-spacing:.14em}
+
+  /* 二段組みは積む。見出しは横に寝かせ、本文は画面幅いっぱいに */
+  .colset{flex-direction:column;align-items:stretch;gap:clamp(22px,5vw,34px)}
+  /* 見出しの上に小見出しを載せる。他の節と同じ積みかたに揃える */
+  .colset__head{flex-direction:column-reverse;align-items:flex-start;gap:9px}
+  .eyebrow--tate{writing-mode:horizontal-tb;height:auto}
+  .colset > .panel,.colset > .quote{width:100%;max-width:100%}
+  .panel{padding:clamp(24px,5vw,40px) clamp(18px,4.5vw,34px)}
+
+  /* 地の「偶」。右に逃がすと文字が画面の外で切れるので、
+     狭い画面では横組みに戻し、画面の中に丸ごと収める */
+  .hero__ghost{
+    inset:0;
+    display:grid;place-items:center;padding-top:10vh;
+    writing-mode:horizontal-tb;text-orientation:mixed;
+    font-size:min(38vh,60vw);
+  }
+  .hero__ghost i{animation-name:sway-sp}
+}
+@keyframes sway-sp{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+/* 文節での折り返しは、行が長いほど効く。
+   スマホの一行は短く、文節を丸ごと送ると行末が大きく空いたり、
+   句点だけが次行に落ちたりする。狭い画面では通常の禁則処理に戻す */
+@media (max-width:640px){
+  .jp{word-break:normal;overflow-wrap:normal}
 }
 @media (max-width:380px){
   :root{--gut:17px}
   .btn{padding:13px 22px;letter-spacing:.16em}
 }
+
+/* ── 素組み ───────────────────────────────────
+   もとは Tailwind の CDN が当てていた分。
+   実際に使っている指定だけを書き出して、外部読み込みを外した */
+h1,h2,h3{font-size:inherit;font-weight:inherit;margin:0}
+dl,dd{margin:0}
+a{text-decoration:inherit}
+b,strong{font-weight:bolder}
+
+.flex{display:flex}
+.flex-row-reverse{flex-direction:row-reverse}
+.flex-wrap{flex-wrap:wrap}
+.items-center{align-items:center}
+.items-start{align-items:flex-start}
+.justify-center{justify-content:center}
+.justify-between{justify-content:space-between}
+.self-start{align-self:flex-start}
+.shrink-0{flex-shrink:0}
+.text-center{text-align:center}
+.mx-auto{margin-left:auto;margin-right:auto}
+.gap-8{gap:2rem}
+.gap-x-7{column-gap:1.75rem}
+.gap-y-3{row-gap:.75rem}
+.mt-4{margin-top:1rem}
+.mt-6{margin-top:1.5rem}
+.mt-7{margin-top:1.75rem}
+.mt-8{margin-top:2rem}
+.mt-10{margin-top:2.5rem}
+.gap-\[clamp\(12px\,1\.6vw\,22px\)\]{gap:clamp(12px,1.6vw,22px)}
+.gap-\[clamp\(14px\,2vw\,26px\)\]{gap:clamp(14px,2vw,26px)}
+.gap-\[clamp\(14px\,2vw\,30px\)\]{gap:clamp(14px,2vw,30px)}
+.gap-\[clamp\(16px\,2\.4vw\,36px\)\]{gap:clamp(16px,2.4vw,36px)}
+.gap-\[clamp\(22px\,4vw\,64px\)\]{gap:clamp(22px,4vw,64px)}
+.mt-\[clamp\(30px\,4vw\,52px\)\]{margin-top:clamp(30px,4vw,52px)}
+.mt-\[clamp\(38px\,5vw\,64px\)\]{margin-top:clamp(38px,5vw,64px)}
+.mt-\[clamp\(52px\,7vw\,92px\)\]{margin-top:clamp(52px,7vw,92px)}
+.mb-\[clamp\(24px\,3\.4vw\,44px\)\]{margin-bottom:clamp(24px,3.4vw,44px)}
+.mb-\[clamp\(34px\,5vw\,70px\)\]{margin-bottom:clamp(34px,5vw,70px)}
+.mb-\[clamp\(36px\,5vw\,72px\)\]{margin-bottom:clamp(36px,5vw,72px)}
+.mb-\[clamp\(40px\,6vw\,84px\)\]{margin-bottom:clamp(40px,6vw,84px)}
+.my-\[clamp\(34px\,5vw\,64px\)\]{margin-top:clamp(34px,5vw,64px);margin-bottom:clamp(34px,5vw,64px)}
+.py-\[clamp\(40px\,6vw\,72px\)\]{padding-top:clamp(40px,6vw,72px);padding-bottom:clamp(40px,6vw,72px)}
+
 </style>
 </head>
 
@@ -448,19 +513,19 @@ p{margin:0 0 1.6em}p:last-child{margin-bottom:0}
     <span>B6判・一二八頁</span>
     <span>二〇二五年六月 発行</span>
     <span>限定二五〇部</span>
-    <span>一、一〇〇円<small>＋税</small></span>
+    <span>一，一〇〇円<small>＋税</small></span>
   </div>
 </section>
 
 <!-- ══════════════ はじまり ══════════════ -->
 <section id="story" class="sec washi" aria-labelledby="st-t">
   <div class="wrap">
-    <div class="flex flex-row-reverse items-start gap-[clamp(22px,4vw,64px)] justify-center">
+    <div class="colset">
 
       <!-- 見出し -->
-      <div class="flex flex-row-reverse items-start gap-[clamp(12px,1.6vw,22px)] shrink-0">
+      <div class="colset__head">
         <h2 class="h-tate rv" id="st-t">ゆくりなく物語</h2>
-        <p class="eyebrow rv" style="writing-mode:vertical-rl;height:max-content;white-space:nowrap">THE BEGINNING</p>
+        <p class="eyebrow eyebrow--tate rv">THE BEGINNING</p>
       </div>
 
       <!-- 枠のなかの本文 -->
@@ -532,10 +597,10 @@ p{margin:0 0 1.6em}p:last-child{margin-bottom:0}
 <!-- ══════════════ 偶然と必然 ══════════════ -->
 <section class="sec washi" aria-labelledby="qt-t" style="background:#EFEFEC">
   <div class="wrap">
-    <div class="flex flex-row-reverse items-start gap-[clamp(22px,4vw,64px)] justify-center">
-      <div class="flex flex-row-reverse items-start gap-[clamp(12px,1.6vw,22px)] shrink-0">
+    <div class="colset">
+      <div class="colset__head">
         <h2 class="h-tate rv" id="qt-t">偶然と必然</h2>
-        <p class="eyebrow rv" style="writing-mode:vertical-rl;height:max-content;white-space:nowrap">A NOTE</p>
+        <p class="eyebrow eyebrow--tate rv">A NOTE</p>
       </div>
       <p class="quote rv">
         この本が今ここにあること、その過程で皆と繋がったことは、どこまでいっても偶然でしかないはずなのに、どういうわけかそこにストーリーを載せて必然だと思いたい自分がいる。<br>
@@ -559,7 +624,7 @@ p{margin:0 0 1.6em}p:last-child{margin-bottom:0}
       <div><dt>発行</dt><dd>二〇二五年六月</dd></div>
       <div><dt>部数</dt><dd>限定二五〇部</dd></div>
       <div><dt>表紙</dt><dd>五〇種</dd></div>
-      <div><dt>価格</dt><dd>一、一〇〇円＋税</dd></div>
+      <div><dt>価格</dt><dd>一，一〇〇円＋税</dd></div>
     </dl>
 
     <div class="rule-h my-[clamp(34px,5vw,64px)] mx-auto" style="max-width:640px"></div>
