@@ -334,6 +334,15 @@ p{margin:0}
 /* ── 引用 ─────────────────────────────────── */
 .quote{writing-mode:vertical-rl;height:var(--tate);line-height:2.5;letter-spacing:.16em;
   font-size:clamp(14px,1.2vw,16px);margin:0}
+/* 段落の切れ目。縦組みでは文章がひと続きに流れるので出さず、
+   横組みに戻る狭い画面でだけ、一行ぶんの間を空ける */
+.ma{display:none}
+
+/* 全角のカンマは前後に半角ぶんのアキを持つ。
+   桁の区切りとしては空きすぎるので、その分を詰める。
+   margin-inline は文字が流れる向きに効くので、縦組みでも同じように詰まる */
+.komma{margin-inline:-.34em}
+
 .quote cite{
   display:block;font-style:normal;margin-right:2.6em;
   font-family:"Zen Kaku Gothic New",sans-serif;font-size:10.5px;letter-spacing:.24em;color:#8A8A8A;
@@ -370,6 +379,8 @@ p{margin:0}
   .quote,.rule-card__d{
     writing-mode:horizontal-tb;height:auto;line-height:2.2;letter-spacing:.06em;
   }
+  /* 一行が短くなるぶん、字はわずかに大きく。一行 20〜24 字に収まる */
+  .quote{font-size:14.5px}
   .quote cite{margin:1.6em 0 0}
   .rule-card{flex-direction:column;gap:12px}
   .rule-card__no,.rule-card__t{writing-mode:horizontal-tb;text-orientation:mixed}
@@ -395,6 +406,17 @@ p{margin:0}
   .eyebrow--tate{writing-mode:horizontal-tb;height:auto}
   .colset > .panel,.colset > .quote{width:100%;max-width:100%}
   .panel{padding:clamp(24px,5vw,40px) clamp(18px,4.5vw,34px)}
+
+  /* 横組みに戻ると一行が短くなり、文がひと続きだと追いにくい。
+     意味のまとまりごとに一行ぶんの間を空ける */
+  .ma{display:block;height:1.15em}
+
+  /* 「読む」リンク。縦のままだと、それだけで画面一つ分の高さを使う */
+  .readmore{writing-mode:horizontal-tb;align-items:center;gap:13px;letter-spacing:.16em}
+  .readmore i{width:34px;height:1px;transform-origin:left}
+  .readmore:hover i{transform:scaleX(1.3)}
+  .readmore em{margin:0}
+  .panel__body{gap:clamp(24px,5vw,34px)}
 
   /* 地の「偶」。右に逃がすと文字が画面の外で切れるので、
      狭い画面では横組みに戻し、画面の中に丸ごと収める */
@@ -513,7 +535,7 @@ b,strong{font-weight:bolder}
     <span>B6判・一二八頁</span>
     <span>二〇二五年六月 発行</span>
     <span>限定二五〇部</span>
-    <span>一，一〇〇円<small>＋税</small></span>
+    <span>一<span class="komma">，</span>一〇〇円<small>＋税</small></span>
   </div>
 </section>
 
@@ -533,10 +555,10 @@ b,strong{font-weight:bolder}
         <div class="panel__body">
           <p class="quote">
             二〇二二年八月、本棚の前で「僕、この本が作りたい」と、彼は少し控えめに呟いた。<br>
-            手にしていたのは椋本湧也さん作「<span class="tcy">26</span>歳計画」という本だった。<br>
-            それは、「<span class="tcy">26</span>歳」をタイトルにした<span class="tcy">48</span>名の文章が一冊にまとまっているというものであるが、この企画はさらに「あなたがいちばん魅力的だと思う<span class="tcy">26</span>歳の知り合いにこの企画をつないでください」とつづく。<br>
+            手にしていたのは椋本湧也さん作「<span class="tcy">26</span>歳計画」という本だった。<br><span class="ma"></span>
+            それは、「<span class="tcy">26</span>歳」をタイトルにした<span class="tcy">48</span>名の文章が一冊にまとまっているというものであるが、この企画はさらに「あなたがいちばん魅力的だと思う<span class="tcy">26</span>歳の知り合いにこの企画をつないでください」とつづく。<br><span class="ma"></span>
             確かにこの企画を少しアレンジして自分たちでやってみるのはおもしろそうだった。<br>
-            「どんなコンセプトにするか」「タイトルは何にするか」と、ふたりで話し合い、妄想をするだけでワクワクしたことを覚えている。<br>
+            「どんなコンセプトにするか」「タイトルは何にするか」と、ふたりで話し合い、妄想をするだけでワクワクしたことを覚えている。<br><span class="ma"></span>
             それから何度も打合せを重ね、企画内容とコンセプトが決まった。
             <cite>「はじめがき」より</cite>
           </p>
@@ -624,7 +646,7 @@ b,strong{font-weight:bolder}
       <div><dt>発行</dt><dd>二〇二五年六月</dd></div>
       <div><dt>部数</dt><dd>限定二五〇部</dd></div>
       <div><dt>表紙</dt><dd>五〇種</dd></div>
-      <div><dt>価格</dt><dd>一，一〇〇円＋税</dd></div>
+      <div><dt>価格</dt><dd>一<span class="komma">，</span>一〇〇円＋税</dd></div>
     </dl>
 
     <div class="rule-h my-[clamp(34px,5vw,64px)] mx-auto" style="max-width:640px"></div>
