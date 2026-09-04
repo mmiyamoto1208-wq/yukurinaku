@@ -102,6 +102,8 @@ a{color:inherit}
   font-size:clamp(24px,3.2vw,38px);letter-spacing:.16em;line-height:1.7;margin:0;
 }
 .lead{font-size:clamp(14px,1.1vw,15.5px);line-height:2.5;letter-spacing:.1em;color:#3F3F3F}
+/* 文の切れ目で行を改める。文の途中で折り返っても読みにくいだけなので */
+.bun{display:block}
 .usu{color:#6A6A6A}
 /* 段落の余白は各コンポーネントが持つ。ここでは付けない */
 p{margin:0}
@@ -422,18 +424,23 @@ p{margin:0}
      狭い画面では横組みに戻し、画面の中に丸ごと収める */
   .hero__ghost{
     inset:0;
-    display:grid;place-items:center;padding-top:10vh;
+    display:grid;place-items:center;padding-top:8vh;
     writing-mode:horizontal-tb;text-orientation:mixed;
-    font-size:min(38vh,60vw);
+    line-height:1.2;                 /* 字面が行の箱からはみ出さない高さを取る */
+    font-size:min(32vh,48vw);
+    font-size:min(32svh,48vw);       /* iOS はバーの出入りで vh が変わる。svh で固定する */
   }
-  .hero__ghost i{animation-name:sway-sp}
+  /* 箱は画面いっぱい。字はその中央に置く。
+     字幅ぶんしか箱を取らないと、機種によっては端が欠ける */
+  .hero__ghost i{display:block;width:100%;text-align:center;animation-name:sway-sp}
 }
 @keyframes sway-sp{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
-/* 文節での折り返しは、行が長いほど効く。
-   スマホの一行は短く、文節を丸ごと送ると行末が大きく空いたり、
-   句点だけが次行に落ちたりする。狭い画面では通常の禁則処理に戻す */
+/* 長い引用だけは、狭い画面で通常の禁則処理に戻す。
+   一行が短いところに文節を丸ごと送ると、行末が大きく空いたり、
+   句点だけが次の行に落ちたりするため。
+   短い文（リード・三つの約束）は文節で折り返したほうが読みやすい */
 @media (max-width:640px){
-  .jp{word-break:normal;overflow-wrap:normal}
+  .quote{word-break:normal;overflow-wrap:normal}
 }
 @media (max-width:380px){
   :root{--gut:17px}
@@ -607,7 +614,7 @@ b,strong{font-weight:bolder}
       <p class="eyebrow rv">SEVENTEEN WRITERS</p>
       <h2 class="h-yoko rv mt-4" id="wr-t">全国に散らばる、十七人。</h2>
       <p class="lead rv usu mt-6 mx-auto jp" style="max-width:30em">
-        バトンが繋がることで偶然に知り合った人たち。そのほとんどと、私たちはいまだ会ったことがありません。</p>
+        <span class="bun">バトンが繋がることで偶然に知り合った人たち。</span><span class="bun">そのほとんどと、私たちはいまだ会ったことがありません。</span></p>
     </div>
 
     <div class="names rv" id="names"></div>
