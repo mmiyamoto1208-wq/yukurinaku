@@ -490,6 +490,7 @@ p{margin:0}
 }
 .field textarea{resize:vertical;min-height:120px;line-height:1.95}
 .field input:focus,.field textarea:focus,.field select:focus{outline:0;border-bottom-color:#3D5A6C}
+.zipmsg{margin-left:.5em;color:#3D5A6C}
 .field small{
   display:block;margin-top:7px;
   font-family:"Zen Kaku Gothic New",sans-serif;font-size:10.5px;letter-spacing:.1em;color:#8A8A8A;line-height:1.9;
@@ -785,7 +786,7 @@ b,strong{font-weight:bolder}
     <p class="eyebrow rv">HOW TO GET</p>
     <h2 class="h-yoko rv mt-4" id="by-t">たったの二五〇部だから、<br>直接お送りしたい。</h2>
     <p class="lead rv usu mt-7 mx-auto jp" style="max-width:33em">
-      一般の書店には並びません。下のフォームからお申し込みいただくか、お取り扱い店舗でお求めいただけます。</p>
+      <span class="bun">一般の書店には並びません。</span><span class="bun">下のフォームからお申し込みいただくか、お取り扱い店舗でお求めいただけます。</span></p>
 
     <!-- 送信を終えて戻ってきた人に出す。ふだんは隠しておく -->
     <div class="thanks mt-[clamp(38px,5vw,64px)]" id="thanks" hidden tabindex="-1">
@@ -798,7 +799,7 @@ b,strong{font-weight:bolder}
       <p class="eyebrow" style="text-align:left;max-width:30em;margin-inline:auto">ORDER FLOW</p>
       <ol class="flowlist mt-4">
         <li>下のフォームをお送りください。</li>
-        <li>折り返しメールで、お支払い方法（銀行振込またはPayPay）をご案内します。振込先の口座やPayPayのお支払い用リンクは、このメールに記載します。</li>
+        <li>折り返しメールで、お支払い方法（銀行振込またはPayPay）をご案内します。振込先の口座やPayPayのお支払い用リンクは、そちらのメールに記載します。</li>
         <li>ご入金を確認しましたら、順次発送いたします。</li>
       </ol>
     </div>
@@ -832,7 +833,7 @@ b,strong{font-weight:bolder}
         <label for="f-zip">送付先の郵便番号 <b>必須</b></label>
         <input id="f-zip" name="郵便番号" type="text" inputmode="numeric" autocomplete="postal-code"
                placeholder="5010202" pattern="[0-9]{3}-?[0-9]{4}" required>
-        <small>ハイフンはあってもなくてもかまいません。</small>
+        <small>ハイフンはあってもなくてもかまいません。入力すると、住所の途中までは自動で入ります。<span class="zipmsg" id="zipMsg" role="status"></span></small>
       </div>
 
       <div class="field">
@@ -979,7 +980,7 @@ b,strong{font-weight:bolder}
   var NO_END = '「『（【〈《“‘', CLOSE = '、。！？」』）】〉》…', OPEN = '「『（【〈《';
   var PREFIX = 'おごみ';
   // 語の後半に来やすい漢字。行頭にすると複合語や補助動詞が割れる
-  var SUFFIX = '立上下出入込合直過続始終切取付手屋物方者様達目中先側用品家人日';
+  var SUFFIX = '立上下出入込合直過続始終切取付手屋物方者様達目中先側用品家人日店';
 
   function phrases(t) {
     var out = [], last = 0;
@@ -1068,6 +1069,58 @@ b,strong{font-weight:bolder}
         thanks.focus();
       }, 400);
     }
+  }
+
+  /* ── 郵便番号から、住所の途中までを入れる ─────
+     日本郵便のデータを返す zipcloud に問い合わせる。
+     取れなかったときは黙って手入力にまかせる。
+     すでに人が書いているものは、決して上書きしない */
+  var zip = document.getElementById('f-zip');
+  var addr = document.getElementById('f-addr');
+  var zipMsg = document.getElementById('zipMsg');
+  if (zip && addr && zipMsg) {
+    var autoFilled = '';   /* こちらが入れた文字列。人が直したかどうかの目印 */
+    var lastAsked = '';
+    var timer = null;
+
+    var lookup = function () {
+      var n = (zip.value || '')
+        .replace(/[０-９]/g, function (c) { return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); })
+        .replace(/[^0-9]/g, '');
+      if (n.length !== 7) { zipMsg.textContent = ''; return; }
+      if (n === lastAsked) return;
+      lastAsked = n;
+
+      fetch('https://zipcloud.ibsnet.co.jp/api/search?zipcode=' + n)
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (!d || !d.results || !d.results[0]) {
+            zipMsg.textContent = '（この番号の住所は見つかりませんでした）';
+            return;
+          }
+          var a = d.results[0];
+          var s = (a.address1 || '') + (a.address2 || '') + (a.address3 || '');
+          if (addr.value === '' || addr.value === autoFilled) {
+            addr.value = s;
+            autoFilled = s;
+            zipMsg.textContent = '（つづきをご記入ください）';
+            if (document.activeElement === zip) {
+              addr.focus();
+              addr.setSelectionRange(s.length, s.length);
+            }
+          } else {
+            /* 人がすでに書いている。上書きせず、見つかった住所だけ知らせる */
+            zipMsg.textContent = '（' + s + '）';
+          }
+        })
+        .catch(function () { /* 通信できないときは何もしない */ });
+    };
+
+    zip.addEventListener('input', function () {
+      clearTimeout(timer);
+      timer = setTimeout(lookup, 350);
+    });
+    zip.addEventListener('blur', lookup);
   }
 
   /* ── ヘッダー ─────────────────────────────── */
