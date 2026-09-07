@@ -455,21 +455,6 @@ p{margin:0}
    入力する字だけはゴシックにする（小さな明朝は読みにくい）
    ══════════════════════════════════════════════ */
 
-/* 価格と送料。取扱店の一覧と同じ罫の意匠で並べる */
-.fee{
-  display:flex;flex-direction:column;max-width:30em;margin-inline:auto;
-  border-top:1px solid #D8D6D0;text-align:left;
-}
-.fee div{
-  display:flex;align-items:baseline;justify-content:space-between;gap:1.4em;
-  padding:14px 2px;border-bottom:1px solid #D8D6D0;
-}
-.fee b{font-weight:400;font-size:13.5px;letter-spacing:.12em}
-.fee i{
-  font-style:normal;flex:0 0 auto;
-  font-family:"Zen Kaku Gothic New",sans-serif;font-size:12.5px;letter-spacing:.1em;color:#3D5A6C;
-}
-
 /* ご購入の流れ。番号を縦の罫でつなぐ */
 .flowlist{
   position:relative;max-width:30em;margin-inline:auto;text-align:left;padding-left:30px;
@@ -806,14 +791,6 @@ b,strong{font-weight:bolder}
     <div class="thanks mt-[clamp(38px,5vw,64px)]" id="thanks" hidden tabindex="-1">
       <b>お申し込みをお受けしました。</b>
       <p>折り返し、yukurinaku2506@gmail.com からお支払い方法をご案内します。二〜三日たっても届かない場合は、迷惑メールフォルダをご確認のうえ、お手数ですが同じアドレスまでご連絡ください。</p>
-    </div>
-
-    <!-- 価格と送料 -->
-    <div class="fee rv mt-[clamp(38px,5vw,64px)]">
-      <div><b>本体</b><i>一冊 1,210円（税込）</i></div>
-      <div><b>送料　1〜2冊</b><i>210円</i></div>
-      <div><b>送料　3〜4冊</b><i>430円</i></div>
-      <div><b>送料　5〜10冊</b><i>600円</i></div>
     </div>
 
     <!-- ご購入の流れ -->
