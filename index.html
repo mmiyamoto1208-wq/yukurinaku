@@ -447,6 +447,117 @@ p{margin:0}
   .btn{padding:13px 22px;letter-spacing:.16em}
 }
 
+/* ══════════════════════════════════════════════
+   購入フォーム
+
+   入力欄は囲わない。下に罫を一本引くだけにして、
+   ページ全体の「罫で区切る」作りに合わせる。
+   入力する字だけはゴシックにする（小さな明朝は読みにくい）
+   ══════════════════════════════════════════════ */
+
+/* 価格と送料。取扱店の一覧と同じ罫の意匠で並べる */
+.fee{
+  display:flex;flex-direction:column;max-width:30em;margin-inline:auto;
+  border-top:1px solid #D8D6D0;text-align:left;
+}
+.fee div{
+  display:flex;align-items:baseline;justify-content:space-between;gap:1.4em;
+  padding:14px 2px;border-bottom:1px solid #D8D6D0;
+}
+.fee b{font-weight:400;font-size:13.5px;letter-spacing:.12em}
+.fee i{
+  font-style:normal;flex:0 0 auto;
+  font-family:"Zen Kaku Gothic New",sans-serif;font-size:12.5px;letter-spacing:.1em;color:#3D5A6C;
+}
+
+/* ご購入の流れ。番号を縦の罫でつなぐ */
+.flowlist{
+  position:relative;max-width:30em;margin-inline:auto;text-align:left;padding-left:30px;
+}
+.flowlist::before{content:"";position:absolute;left:4px;top:12px;bottom:12px;width:1px;background:#D8D6D0}
+.flowlist li{position:relative;padding-block:9px;font-size:13.5px;line-height:2.1;letter-spacing:.08em;color:#4A4A4A}
+.flowlist li::before{
+  content:"";position:absolute;left:-30px;top:calc(9px + .95em);
+  width:7px;height:7px;border-radius:50%;background:#3D5A6C;
+}
+
+/* フォーム本体 */
+.form{max-width:34em;margin-inline:auto;text-align:left}
+.field{margin-bottom:26px}
+.field > label{
+  display:flex;align-items:baseline;gap:9px;
+  font-family:"Zen Kaku Gothic New",sans-serif;
+  font-size:11px;letter-spacing:.2em;color:#5A5A5A;
+}
+.field > label b{font-weight:400;font-size:9.5px;letter-spacing:.14em;color:#9A6A6A}
+.field input,.field textarea,.field select{
+  width:100%;margin-top:9px;padding:12px 2px;
+  border:0;border-bottom:1px solid #C9C7C1;background:transparent;border-radius:0;
+  font-family:"Zen Kaku Gothic New",sans-serif;
+  font-size:15px;letter-spacing:.04em;color:#272727;
+  -webkit-appearance:none;appearance:none;
+  transition:border-color .4s var(--ease);
+}
+.field select{
+  background-image:linear-gradient(45deg,transparent 50%,#8A8A8A 50%),linear-gradient(135deg,#8A8A8A 50%,transparent 50%);
+  background-position:calc(100% - 12px) 21px,calc(100% - 7px) 21px;
+  background-size:5px 5px;background-repeat:no-repeat;padding-right:28px;
+}
+.field textarea{resize:vertical;min-height:120px;line-height:1.95}
+.field input:focus,.field textarea:focus,.field select:focus{outline:0;border-bottom-color:#3D5A6C}
+.field small{
+  display:block;margin-top:7px;
+  font-family:"Zen Kaku Gothic New",sans-serif;font-size:10.5px;letter-spacing:.1em;color:#8A8A8A;line-height:1.9;
+}
+
+/* 支払い方法。囲いではなく、選ぶと罫が濃くなる */
+.pays{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.pays label{
+  display:inline-flex;align-items:center;gap:9px;cursor:pointer;
+  padding:11px 18px;border:1px solid #D8D6D0;
+  font-family:"Zen Kaku Gothic New",sans-serif;font-size:12px;letter-spacing:.14em;color:#4A4A4A;
+  transition:border-color .4s var(--ease),color .4s var(--ease),background-color .4s var(--ease);
+}
+.pays input{position:absolute;opacity:0;width:0;height:0}
+.pays i{
+  display:block;width:7px;height:7px;border-radius:50%;background:transparent;
+  box-shadow:0 0 0 1px #B8B6B0;transition:background-color .3s var(--ease),box-shadow .3s var(--ease);
+}
+.pays label:has(input:checked){border-color:#3D5A6C;color:#272727;background:#EFF1F3}
+.pays label:has(input:checked) i{background:#3D5A6C;box-shadow:0 0 0 1px #3D5A6C}
+.pays input:focus-visible + i{box-shadow:0 0 0 2px #3D5A6C}
+
+/* 合計。奥付の帯と同じ地色を敷いて、書誌と対にする */
+.tally{
+  margin:6px 0 30px;padding:18px 20px;background:#EFEFEC;border-block:1px solid #D8D6D0;
+  display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 18px;
+}
+.tally dl{display:flex;flex-wrap:wrap;gap:4px 16px;margin:0}
+.tally dl > div{display:flex;align-items:baseline;gap:8px}
+.tally dt{
+  font-family:"Zen Kaku Gothic New",sans-serif;font-size:10px;letter-spacing:.22em;color:#8A8A8A;margin:0;
+}
+.tally dd{font-family:"Zen Kaku Gothic New",sans-serif;font-size:13px;letter-spacing:.06em;margin:0}
+.tally .sum{display:flex;align-items:baseline;gap:10px}
+.tally .sum span{font-family:"Zen Kaku Gothic New",sans-serif;font-size:10px;letter-spacing:.22em;color:#8A8A8A}
+.tally .sum b{
+  font-weight:400;font-family:"Hina Mincho",serif;
+  font-size:clamp(21px,2.4vw,27px);letter-spacing:.04em;color:#3D5A6C;
+}
+
+/* 送信後のお礼 */
+.thanks{
+  max-width:34em;margin:0 auto clamp(34px,5vw,56px);
+  padding:22px 24px;border:1px solid #3D5A6C;background:#EFF1F3;text-align:left;
+}
+.thanks b{display:block;font-weight:400;font-family:"Hina Mincho",serif;font-size:17px;letter-spacing:.14em;color:#3D5A6C;margin-bottom:8px}
+.thanks p{margin:0;font-size:13px;line-height:2.05;letter-spacing:.06em;color:#4A4A4A}
+
+@media (max-width:640px){
+  .tally{flex-direction:column;align-items:flex-start}
+  .pays label{flex:1 1 auto;justify-content:center}
+}
+
 /* ── 素組み ───────────────────────────────────
    もとは Tailwind の CDN が当てていた分。
    実際に使っている指定だけを書き出して、外部読み込みを外した */
@@ -482,6 +593,7 @@ b,strong{font-weight:bolder}
 .mt-\[clamp\(30px\,4vw\,52px\)\]{margin-top:clamp(30px,4vw,52px)}
 .mt-\[clamp\(38px\,5vw\,64px\)\]{margin-top:clamp(38px,5vw,64px)}
 .mt-\[clamp\(52px\,7vw\,92px\)\]{margin-top:clamp(52px,7vw,92px)}
+.mt-\[clamp\(44px\,6vw\,76px\)\]{margin-top:clamp(44px,6vw,76px)}
 .mb-\[clamp\(24px\,3\.4vw\,44px\)\]{margin-bottom:clamp(24px,3.4vw,44px)}
 .mb-\[clamp\(34px\,5vw\,70px\)\]{margin-bottom:clamp(34px,5vw,70px)}
 .mb-\[clamp\(36px\,5vw\,72px\)\]{margin-bottom:clamp(36px,5vw,72px)}
@@ -688,13 +800,125 @@ b,strong{font-weight:bolder}
     <p class="eyebrow rv">HOW TO GET</p>
     <h2 class="h-yoko rv mt-4" id="by-t">たったの二五〇部だから、<br>直接お送りしたい。</h2>
     <p class="lead rv usu mt-7 mx-auto jp" style="max-width:33em">
-      一般の書店には並びません。私たちふたりのどちらかにご連絡いただくか、下記のお取り扱い店舗でお求めいただけます。</p>
+      一般の書店には並びません。下のフォームからお申し込みいただくか、お取り扱い店舗でお求めいただけます。</p>
 
-    <div class="rv mt-[clamp(38px,5vw,64px)] flex flex-wrap justify-center gap-[clamp(14px,2vw,26px)]">
-      <a class="btn btn--ai" href="https://www.instagram.com/mm55world/" target="_blank" rel="noopener">宮本雅就 ＠mm55world ↗</a>
-      <a class="btn btn--ai" href="https://www.instagram.com/trinke_kaffee/" target="_blank" rel="noopener">江澤礼 ＠trinke_kaffee ↗</a>
+    <!-- 送信を終えて戻ってきた人に出す。ふだんは隠しておく -->
+    <div class="thanks mt-[clamp(38px,5vw,64px)]" id="thanks" hidden tabindex="-1">
+      <b>お申し込みをお受けしました。</b>
+      <p>折り返し、yukurinaku2506@gmail.com からお支払い方法をご案内します。二〜三日たっても届かない場合は、迷惑メールフォルダをご確認のうえ、お手数ですが同じアドレスまでご連絡ください。</p>
     </div>
-    <p class="eyebrow rv mt-8">＊在庫状況は各アカウントへお問い合わせください</p>
+
+    <!-- 価格と送料 -->
+    <div class="fee rv mt-[clamp(38px,5vw,64px)]">
+      <div><b>本体</b><i>一冊 1,210円（税込）</i></div>
+      <div><b>送料　1〜2冊</b><i>210円</i></div>
+      <div><b>送料　3〜4冊</b><i>430円</i></div>
+      <div><b>送料　5〜10冊</b><i>600円</i></div>
+    </div>
+
+    <!-- ご購入の流れ -->
+    <div class="rv mt-[clamp(38px,5vw,64px)]">
+      <p class="eyebrow" style="text-align:left;max-width:30em;margin-inline:auto">ORDER FLOW</p>
+      <ol class="flowlist mt-4">
+        <li>下のフォームをお送りください。</li>
+        <li>折り返しメールで、お支払い方法（銀行振込またはPayPay）をご案内します。振込先の口座やPayPayのお支払い用リンクは、このメールに記載します。</li>
+        <li>ご入金を確認しましたら、順次発送いたします。</li>
+      </ol>
+    </div>
+
+    <!-- ══════ 購入フォーム ══════
+         受け皿は FormSubmit。宛先を action に書くだけで、
+         入力内容がそのままメールで届く。
+         ＊はじめて送信したときだけ、宛先に確認メールが一通届く。
+           そこで承認すると、以後はそのまま届くようになる -->
+    <form class="form rv mt-[clamp(44px,6vw,76px)]"
+          id="buyForm"
+          action="https://formsubmit.co/yukurinaku2506@gmail.com"
+          method="POST">
+
+      <!-- 件名・体裁・戻り先。表示されない設定用の欄 -->
+      <input type="hidden" name="_subject" value="【ゆくりなく】購入のお申し込み">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_next" value="https://yukurinaku.vercel.app/?sent=1">
+      <!-- 機械が勝手に埋める囮の欄。人には見えない -->
+      <input type="text" name="_honey" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+      <!-- 計算した金額も一緒に送る -->
+      <input type="hidden" name="ご注文内容" id="f-order" value="">
+
+      <div class="field">
+        <label for="f-name">お名前 <b>必須</b></label>
+        <input id="f-name" name="お名前" type="text" autocomplete="name" required>
+      </div>
+
+      <div class="field">
+        <label for="f-zip">送付先の郵便番号 <b>必須</b></label>
+        <input id="f-zip" name="郵便番号" type="text" inputmode="numeric" autocomplete="postal-code"
+               placeholder="5010202" pattern="[0-9]{3}-?[0-9]{4}" required>
+        <small>ハイフンはあってもなくてもかまいません。</small>
+      </div>
+
+      <div class="field">
+        <label for="f-addr">送付先の住所 <b>必須</b></label>
+        <input id="f-addr" name="送付先住所" type="text" autocomplete="street-address"
+               placeholder="岐阜県郡上市八幡町◯◯ 1-2-3 ◯◯マンション101" required>
+        <small>都道府県から、建物名・部屋番号までご記入ください。</small>
+      </div>
+
+      <div class="field">
+        <label for="f-mail">メールアドレス <b>必須</b></label>
+        <input id="f-mail" name="email" type="email" autocomplete="email" required>
+        <small>このアドレス宛に、お支払い方法をご案内します。</small>
+      </div>
+
+      <div class="field">
+        <label for="f-num">ご希望の部数 <b>必須</b></label>
+        <select id="f-num" name="部数" required>
+          <option value="1">1冊</option>
+          <option value="2">2冊</option>
+          <option value="3">3冊</option>
+          <option value="4">4冊</option>
+          <option value="5">5冊</option>
+          <option value="6">6冊</option>
+          <option value="7">7冊</option>
+          <option value="8">8冊</option>
+          <option value="9">9冊</option>
+          <option value="10">10冊</option>
+        </select>
+        <small>11冊以上をご希望の場合は、備考欄にご記入ください。送料を別途ご案内します。</small>
+      </div>
+
+      <!-- 合計。部数を選ぶとその場で書き換わる -->
+      <div class="tally" id="tally" aria-live="polite">
+        <dl>
+          <div><dt>本体</dt><dd id="t-body">1,210円 × 1冊</dd></div>
+          <div><dt>送料</dt><dd id="t-ship">210円</dd></div>
+        </dl>
+        <p class="sum"><span>お支払い合計</span><b id="t-sum">1,420円</b></p>
+      </div>
+
+      <div class="field">
+        <label>お支払い方法 <b>必須</b></label>
+        <div class="pays">
+          <label><input type="radio" name="お支払い方法" value="銀行振込" required checked><i></i>銀行振込</label>
+          <label><input type="radio" name="お支払い方法" value="PayPay"><i></i>PayPay</label>
+        </div>
+        <small>振込先の口座、またはPayPayのお支払い用リンクは、折り返しのメールでご案内します。</small>
+      </div>
+
+      <div class="field">
+        <label for="f-note">備考</label>
+        <textarea id="f-note" name="備考" placeholder="ご質問、お届け日のご希望など、ご自由にどうぞ。"></textarea>
+      </div>
+
+      <p style="margin:0">
+        <button class="btn btn--ai" type="submit" style="width:100%">お申し込みを送る</button>
+      </p>
+      <p style="margin:16px 0 0;font-family:'Zen Kaku Gothic New',sans-serif;font-size:10.5px;letter-spacing:.1em;line-height:1.95;color:#8A8A8A">
+        ＊この時点では代金はいただきません。<br>
+        ＊いただいた情報は、発送とご連絡以外には使いません。<br>
+        ＊限定二五〇部のため、品切れの際はご容赦ください。</p>
+    </form>
 
     <div class="rv mt-[clamp(52px,7vw,92px)]">
       <p class="eyebrow">STOCKISTS</p>
@@ -801,7 +1025,7 @@ b,strong{font-weight:bolder}
   // 縦組みの本文と、名前・仕様は元の組みのままにしておく
   [].slice.call(document.querySelectorAll('main p, main h2, main h3, footer p'))
     .forEach(function (el) {
-      if (el.closest('.names, .spec, .hero__ttl, .hero__sub')) return;
+      if (el.closest('.names, .spec, .hero__ttl, .hero__sub, .form, .fee, .tally, .flowlist')) return;
       var wk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, null, false), ns = [], n;
       while ((n = wk.nextNode())) { if (/[ぁ-ヿ一-鿿]/.test(n.nodeValue)) ns.push(n); }
       if (!ns.length) return;
@@ -819,6 +1043,55 @@ b,strong{font-weight:bolder}
       });
       if (hit) el.classList.add('jp');
     });
+
+  /* ══════════════════════════════════════════════
+     購入フォーム
+
+     ・部数を選んだその場で、本体・送料・合計を書き換える
+     ・同じ内容を隠しの欄にも入れて、届くメールにも載るようにする
+     ・送信後は ?sent=1 で戻ってくるので、お礼を出して見せる
+     ══════════════════════════════════════════════ */
+  var YEN = function (n) { return n.toLocaleString('ja-JP') + '円'; };
+  var UNIT = 1210;                    /* 本体。一冊あたり（税込） */
+  function shipping(n) {              /* 送料。冊数の帯で決まる */
+    if (n <= 2) return 210;
+    if (n <= 4) return 430;
+    return 600;                       /* 5〜10冊 */
+  }
+
+  var numSel = document.getElementById('f-num');
+  if (numSel) {
+    var tBody = document.getElementById('t-body');
+    var tShip = document.getElementById('t-ship');
+    var tSum  = document.getElementById('t-sum');
+    var order = document.getElementById('f-order');
+
+    var tally = function () {
+      var n = parseInt(numSel.value, 10) || 1;
+      var body = UNIT * n, ship = shipping(n), sum = body + ship;
+      tBody.textContent = YEN(UNIT) + ' × ' + n + '冊 ＝ ' + YEN(body);
+      tShip.textContent = YEN(ship);
+      tSum.textContent  = YEN(sum);
+      /* 届くメールにも同じ内訳を残す */
+      order.value = n + '冊／本体 ' + YEN(body) + '／送料 ' + YEN(ship) + '／合計 ' + YEN(sum);
+    };
+    numSel.addEventListener('change', tally);
+    tally();
+  }
+
+  /* 送信を終えて戻ってきたとき */
+  if (/[?&]sent=1/.test(location.search)) {
+    var thanks = document.getElementById('thanks');
+    if (thanks) {
+      thanks.hidden = false;
+      var form = document.getElementById('buyForm');
+      if (form) form.reset();
+      setTimeout(function () {
+        thanks.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+        thanks.focus();
+      }, 400);
+    }
+  }
 
   /* ── ヘッダー ─────────────────────────────── */
   var hd = document.getElementById('hd');
