@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="ja" class="no-js">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-S5M2NX2VL3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-S5M2NX2VL3');
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ゆくりなく｜偶然に繋がった十七人のことばを、一冊に。</title>
@@ -721,7 +730,7 @@ b,strong{font-weight:bolder}
 </section>
 
 <!-- ══════════════ 偶然と必然 ══════════════ -->
-<section class="sec washi" aria-labelledby="qt-t" style="background:#EFEFEC">
+<section id="quote" class="sec washi" aria-labelledby="qt-t" style="background:#EFEFEC">
   <div class="wrap">
     <div class="colset">
       <div class="colset__head">
@@ -1175,6 +1184,77 @@ b,strong{font-weight:bolder}
       scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1 }
     });
   }
+})();
+</script>
+<script>
+/* ══════════════════════════════════════════════
+   どこを、どれくらい見てもらえたか
+   一枚もののページなので「ページビュー」だけでは
+   何も分からない。節ごとの到達と、申し込みの手前／
+   送信を、それぞれ別の出来事として数える
+   ══════════════════════════════════════════════ */
+(function () {
+  if (typeof gtag !== 'function') return;
+
+  /* ── 節ごとの到達 ─────────────────────────
+     画面の半分以上に入った時点で一度だけ。
+     素通りは数えない */
+  var NAMES = {
+    top:     'はじまり',
+    story:   'ゆくりなく物語',
+    rules:   '三つの約束',
+    writers: '執筆者',
+    quote:   '偶然と必然',
+    book:    '本のこと',
+    radio:   'ラヂヲ',
+    buy:     'お迎えする'
+  };
+
+  if ('IntersectionObserver' in window) {
+    var seen = {};
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var id = e.target.id;
+        if (seen[id]) return;
+        seen[id] = 1;
+        gtag('event', 'view_section', {
+          section_id: id,
+          section_name: NAMES[id] || id
+        });
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.5 });
+
+    Object.keys(NAMES).forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) io.observe(el);
+    });
+  }
+
+  /* ── 申し込みフォーム ───────────────────────
+     書きはじめた人と、送った人。
+     この二つの差が、途中でやめた人の数になる */
+  var form = document.getElementById('buyForm');
+  if (!form) return;
+
+  var began = false;
+  form.addEventListener('input', function () {
+    if (began) return;
+    began = true;
+    gtag('event', 'begin_order');
+  }, true);
+
+  form.addEventListener('submit', function () {
+    var num = document.getElementById('f-num');
+    var sum = document.getElementById('t-sum');
+    var pay = form.querySelector('input[name="お支払い方法"]:checked');
+    gtag('event', 'submit_order', {
+      copies: num ? Number(num.value) : undefined,
+      total_text: sum ? sum.textContent : undefined,
+      pay_method: pay ? pay.value : undefined
+    });
+  });
 })();
 </script>
 </body>
