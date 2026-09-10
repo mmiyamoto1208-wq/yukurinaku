@@ -1224,7 +1224,10 @@ b,strong{font-weight:bolder}
         });
         io.unobserve(e.target);
       });
-    }, { threshold: 0.5 });
+    /* 節は画面より背が高い。「面積の何割が見えたか」では
+       いつまでも条件を満たさないので、画面の中ほどの帯に
+       節がかかったかどうかで判定する */
+    }, { rootMargin: '-40% 0px -40% 0px', threshold: 0 });
 
     Object.keys(NAMES).forEach(function (id) {
       var el = document.getElementById(id);
